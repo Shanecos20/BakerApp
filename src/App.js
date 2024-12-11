@@ -7,6 +7,9 @@ import Content from './components/Content';
 import Read from './components/Read';
 import Create from './components/Create';
 import Edit from './components/Edit';
+import Login from './components/Login';
+import Register from './components/Register';
+
 
 function App() {
   return (
@@ -17,6 +20,9 @@ function App() {
         <Route path="/read" element={<Read />} />
         <Route path="/create" element={<Create />} />
         <Route path='/edit/:id' element={<Edit />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+
       </Routes>
       <Footer />
     </Router>
