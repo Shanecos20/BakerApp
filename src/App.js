@@ -1,18 +1,25 @@
-import Header from './components/Header';
-import Content from './components/Content';
-import Footer from './components/Footer';
-import NavigationBar from './components/NavigationBar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
+import NavigationBar from './components/NavigationBar';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Content from './components/Content';
+import Read from './components/Read';
+import Create from './components/Create';
+import Edit from './components/Edit';
 
 function App() {
   return (
-    <div>
+    <Router>
       <NavigationBar />
-      <Header />
-      <Content />
+      <Routes>
+        <Route path="/" element={<Content />} />
+        <Route path="/read" element={<Read />} />
+        <Route path="/create" element={<Create />} />
+        <Route path='/edit/:id' element={<Edit />} />
+      </Routes>
       <Footer />
-    </div>
+    </Router>
   );
 }
 
