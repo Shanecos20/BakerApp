@@ -1,24 +1,22 @@
-import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 
-// Defining the NavigationBar component to handle navigation links
 const NavigationBar = () => {
   return (
-    // Bootstrap Navbar component with dark background and expand on large screens
-    <Navbar bg="dark" variant="dark" expand="lg">
-      {/* Brand name for the application */}
-      <Navbar.Brand href="#">React App</Navbar.Brand>
-      {/* Navigation links using react-router-dom's Link component */}
-      <Nav className="mr-auto">
-        {/* Link to the Home page */}
-        <Nav.Link as={Link} to="/home">Home</Nav.Link>
-        {/* Link to the Read page */}
-        <Nav.Link as={Link} to="/read">Read</Nav.Link>
-        {/* Link to the Create page */}
-        <Nav.Link as={Link} to="/create">Create</Nav.Link>
-      </Nav>
+    <Navbar bg="light" data-bs-theme="light" className="border-bottom shadow-sm">
+      <Container>
+        <Navbar.Brand href="/" className="fw-bold" style={{ fontFamily: "'Caveat', cursive", fontSize: '1.5rem' }}>
+          Bakehouse Recipes
+        </Navbar.Brand>
+        <Nav className="me-auto">
+          <Nav.Link href="/" className="text-secondary fw-semibold">Home</Nav.Link>
+          <Nav.Link href="/create" className="text-secondary fw-semibold">Add Recipe</Nav.Link>
+          <Nav.Link href="/read" className="text-secondary fw-semibold">All Recipes</Nav.Link>
+        </Nav>
+      </Container>
     </Navbar>
   );
 };
 
-export default NavigationBar; // Exporting the NavigationBar component for
+export default NavigationBar;
