@@ -1,3 +1,4 @@
+// Read.js
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Recipes from "./Recipes";
@@ -12,7 +13,6 @@ const Read = () => {
   useEffect(() => {
     axios.get('http://localhost:4000/api/recipes')
       .then((response) => {
-        console.log(response.data);
         setRecipes(response.data.recipes);
       })
       .catch((error) => {

@@ -1,14 +1,13 @@
+// server.js
 const express = require('express');
 const app = express();
 const port = 4000;
-
 const cors = require('cors');
 app.use(cors());
-
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   next();
 });
 
@@ -16,8 +15,18 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+const jwt = require('jsonwebtoken');
+const secret = 'some_secret_key';
+
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://admin:admin@cluster0.2dzjp.mongodb.net/recipesDB');
+
+const userSchema = new mongoose.Schema({
+  name:String,
+  email:String,
+  password:String,
+  icon:String
+});
 
 const recipeSchema = new mongoose.Schema({
   name: String,
@@ -25,17 +34,49 @@ const recipeSchema = new mongoose.Schema({
   image: String,
   instructions: String,
   ingredients: String,
-  category: String
+  category: String,
+  owner: String,
+  rating: { type: Number, default: 0 },
+  ratedBy: [{ userId: String }] 
 });
 
-const recipeModel = new mongoose.model('recipesCollection', recipeSchema);
+const userModel = mongoose.model('usersCollection', userSchema);
+const recipeModel = mongoose.model('recipesCollection', recipeSchema);
+
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if(!authHeader) return res.status(401).json({message:'No token'});
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, secret, (err,user)=>{
+    if(err) return res.status(403).json({message:'Invalid token'});
+    req.user = user;
+    next();
+  });
+}
+
+app.post('/api/register', async (req,res)=>{
+  const {name,email,password,icon} = req.body;
+  const existing = await userModel.findOne({email});
+  if(existing) return res.status(400).json({message:'User exists'});
+  const newUser = new userModel({name,email,password,icon});
+  await newUser.save();
+  const token = jwt.sign({ _id: newUser._id }, secret);
+  res.json({ _id:newUser._id, name:newUser.name, email:newUser.email, icon:newUser.icon, token });
+});
+
+app.post('/api/login', async (req,res)=>{
+  const {email,password} = req.body;
+  const user = await userModel.findOne({email,password});
+  if(!user) return res.status(400).json({message:'Invalid credentials'});
+  const token = jwt.sign({ _id: user._id }, secret);
+  res.json({ _id:user._id, name:user.name, email:user.email, icon:user.icon, token });
+});
 
 app.get('/api/recipes', async (req, res) => {
   try {
     const recipes = await recipeModel.find({});
     res.status(200).json({ recipes });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error retrieving recipes" });
   }
 });
@@ -48,33 +89,65 @@ app.get('/api/recipes/:id', async (req, res) => {
     }
     res.json(recipe);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error retrieving recipe" });
   }
 });
 
-app.put('/api/recipes/:id', async (req, res) => {
+app.put('/api/recipes/:id', authMiddleware, async (req, res) => {
   try {
+    const recipe = await recipeModel.findById(req.params.id);
+    if(!recipe) return res.status(404).json({ message: "Recipe not found" });
+    if(recipe.owner !== req.user._id) return res.status(403).json({message:'Not owner'});
     const updatedRecipe = await recipeModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if(!updatedRecipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
     res.send(updatedRecipe);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error updating recipe" });
   }
 });
 
-app.post('/api/recipes', async (req, res) => {
+app.post('/api/recipes', authMiddleware, async (req, res) => {
   try {
-    const { name, preparationTime, image, instructions, ingredients, category } = req.body;
-    const newRecipe = new recipeModel({ name, preparationTime, image, instructions, ingredients, category });
+    const { name, preparationTime, image, instructions, ingredients, category, owner } = req.body;
+    if(owner !== req.user._id) return res.status(403).json({message:'Not owner'});
+    const newRecipe = new recipeModel({ name, preparationTime, image, instructions, ingredients, category, owner });
     await newRecipe.save();
     res.status(201).json({ message: "Recipe Added!", Recipe: newRecipe });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error adding recipe" });
+  }
+});
+
+app.delete('/api/recipes/:id', authMiddleware, async (req,res)=>{
+  try {
+    const recipe = await recipeModel.findById(req.params.id);
+    if(!recipe) return res.status(404).json({message:'Recipe not found'});
+    if(recipe.owner !== req.user._id) return res.status(403).json({message:'Not owner'});
+    await recipeModel.findByIdAndDelete(req.params.id);
+    res.json({message:'Deleted'});
+  } catch(error) {
+    res.status(500).json({message:'Error deleting recipe'});
+  }
+});
+
+app.post('/api/recipes/:id/rate', authMiddleware, async (req,res)=>{
+  try {
+    const recipe = await recipeModel.findById(req.params.id);
+    if(!recipe) return res.status(404).json({message:'Recipe not found'});
+    if(recipe.owner === req.user._id) return res.status(403).json({message:'Cannot rate own recipe'});
+    const { rating } = req.body;
+    if(!recipe.ratedBy.find(r=>r.userId===req.user._id)) {
+      recipe.ratedBy.push({userId:req.user._id});
+      const totalRatings = recipe.ratedBy.length;
+      const currentRating = recipe.rating * (totalRatings-1);
+      const newRating = (currentRating + rating) / totalRatings;
+      recipe.rating = newRating;
+    } else {
+      // Already rated - simple approach: no re-rate
+    }
+    await recipe.save();
+    res.json({message:'Rated', rating:recipe.rating});
+  } catch(error) {
+    res.status(500).json({message:'Error rating'});
   }
 });
 

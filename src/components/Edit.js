@@ -1,3 +1,4 @@
+// Edit.js
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -5,27 +6,43 @@ import { useParams, useNavigate } from "react-router-dom";
 const Edit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    
+
+    const [user, setUser] = useState(null);
+
     const [name, setName] = useState('');
     const [preparationTime, setPreparationTime] = useState('');
     const [image, setImage] = useState('');
     const [instructions, setInstructions] = useState('');
     const [ingredients, setIngredients] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('Cakes');
+    const [owner, setOwner] = useState(null);
+
+    useEffect(() => {
+      const storedUser = localStorage.getItem('user');
+      if(storedUser) {
+        const u = JSON.parse(storedUser);
+        setUser(u);
+      } else {
+        navigate('/login');
+      }
+    }, [navigate]);
 
     useEffect(() => {
         axios.get('http://localhost:4000/api/recipes/' + id)
         .then((res) => {
-            console.log("Loaded recipe: " + res.data);
             setName(res.data.name);
             setPreparationTime(res.data.preparationTime);
             setImage(res.data.image);
             setInstructions(res.data.instructions);
             setIngredients(res.data.ingredients);
             setCategory(res.data.category);
+            setOwner(res.data.owner);
+            if(user && res.data.owner !== user._id) {
+              navigate('/');
+            }
         })
-        .catch((err) => { console.log(err) });
-    }, [id]);
+        .catch((err) => {console.log(err)});
+    }, [id, user, navigate]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -35,13 +52,14 @@ const Edit = () => {
             image,
             instructions,
             ingredients,
-            category
+            category,
+            owner
         };
-        console.log("Updating recipe: ", updatedRecipe);
 
-        axios.put('http://localhost:4000/api/recipes/' + id, updatedRecipe)
-        .then((res) => {
-            console.log("Edited: " + res.data);
+        axios.put('http://localhost:4000/api/recipes/' + id, updatedRecipe, {
+          headers: { 'Authorization': 'Bearer ' + (user ? user.token : '') }
+        })
+        .then(() => {
             navigate('/read');
         })
         .catch((err) => {
@@ -107,13 +125,15 @@ const Edit = () => {
                 </div>
                 <div className="mb-4">
                     <label className="form-label fw-semibold">Category:</label>
-                    <input 
-                        type="text"
+                    <select 
                         className="form-control"
                         value={category}
                         onChange={(e) => { setCategory(e.target.value) }}
-                        placeholder="e.g. Cakes, Pastries, Bread"
-                    />
+                    >
+                      <option value="Cakes">Cakes</option>
+                      <option value="Pastries">Pastries</option>
+                      <option value="Bread">Bread</option>
+                    </select>
                 </div>
                 <div className="text-center">
                     <button type="submit" className="btn btn-primary fw-bold px-4 py-2">

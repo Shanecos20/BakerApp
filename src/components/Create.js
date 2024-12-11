@@ -1,14 +1,27 @@
+// Create.js
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const Create = () => {
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     const [name, setName] = useState('');
     const [preparationTime, setPreparationTime] = useState('');
     const [image, setImage] = useState('');
     const [instructions, setInstructions] = useState('');
     const [ingredients, setIngredients] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('Cakes');
+
+    useEffect(() => {
+      const storedUser = localStorage.getItem('user');
+      if(storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        navigate('/login');
+      }
+    }, [navigate]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -18,12 +31,16 @@ const Create = () => {
             image,
             instructions,
             ingredients,
-            category
+            category,
+            owner: user ? user._id : null
         };
-        console.log(recipe);
 
-        axios.post('http://localhost:4000/api/recipes', recipe)
-        .then((res) => { console.log(res.data) })
+        axios.post('http://localhost:4000/api/recipes', recipe, {
+          headers: { 'Authorization': 'Bearer ' + (user ? user.token : '') }
+        })
+        .then((res) => { 
+          navigate('/read');
+        })
         .catch((error) => { console.log(error) });
     }
 
@@ -85,13 +102,15 @@ const Create = () => {
                 </div>
                 <div className="mb-4">
                     <label className="form-label fw-semibold">Category:</label>
-                    <input 
-                        type="text"
+                    <select 
                         className="form-control"
                         value={category}
                         onChange={(e) => { setCategory(e.target.value) }}
-                        placeholder="e.g. Cakes, Pastries, Bread"
-                    />
+                    >
+                      <option value="Cakes">Cakes</option>
+                      <option value="Pastries">Pastries</option>
+                      <option value="Bread">Bread</option>
+                    </select>
                 </div>
                 <div className="text-center">
                     <button type="submit" className="btn btn-primary fw-bold px-4 py-2">
