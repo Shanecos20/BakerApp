@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
   name:String,
   email:String,
   password:String,
-  icon:String
+  icon:String,
+  savedRecipes: [String] // Add this line
+
 });
 
 const recipeSchema = new mongoose.Schema({
@@ -126,6 +128,54 @@ app.delete('/api/recipes/:id', authMiddleware, async (req,res)=>{
     res.json({message:'Deleted'});
   } catch(error) {
     res.status(500).json({message:'Error deleting recipe'});
+  }
+});
+
+app.get('/api/user', authMiddleware, async (req,res)=>{
+  try {
+    const user = await userModel.findById(req.user._id);
+    if(!user) return res.status(404).json({message:'User not found'});
+    res.json(user);
+  } catch(err) {
+    res.status(500).json({message:'Error retrieving user data'});
+  }
+});
+
+app.get('/api/saved-recipes', authMiddleware, async (req,res)=>{
+  try {
+    const user = await userModel.findById(req.user._id);
+    if(!user) return res.status(404).json({message:'User not found'});
+    if(!user.savedRecipes || user.savedRecipes.length === 0) {
+      return res.json({savedRecipes:[]});
+    }
+    const saved = await recipeModel.find({_id: {$in: user.savedRecipes}});
+    res.json({savedRecipes:saved});
+  } catch(err) {
+    res.status(500).json({message:'Error getting saved recipes'});
+  }
+});
+
+app.post('/api/recipes/:id/save', authMiddleware, async (req,res)=>{
+  try {
+    const user = await userModel.findById(req.user._id);
+    if(!user) return res.status(404).json({message:'User not found'});
+    const recipeId = req.params.id;
+
+    const index = user.savedRecipes ? user.savedRecipes.indexOf(recipeId) : -1;
+
+    if(index === -1) {
+      // Not saved yet, add it
+      user.savedRecipes.push(recipeId);
+    } else {
+      // Already saved, remove it
+      user.savedRecipes.splice(index,1);
+    }
+
+    await user.save();
+    res.json({message:'Save state toggled', savedRecipes:user.savedRecipes});
+  } catch(err) {
+    console.log(err);
+    res.status(500).json({message:'Error toggling saved state'});
   }
 });
 

@@ -10,6 +10,7 @@ import Edit from './components/Edit';
 import Login from './components/Login';
 import Register from './components/Register';
 import RecipeDetails from './components/RecipeDetails';
+import MyRecipes from './components/MyRecipes';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
         <Route path='/edit/:id' element={<Edit />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
-        <Route path="/recipe/:id" element={<RecipeDetails />} /> {/* Add this route */}
+        <Route path="/recipe/:id" element={<RecipeDetails />} /> 
+        <Route path="/my-recipes" element={<MyRecipes />} />
 
 
       </Routes>

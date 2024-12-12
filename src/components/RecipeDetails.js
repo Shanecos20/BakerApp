@@ -1,23 +1,64 @@
-// RecipeDetails.js (Display all instructions)
+// RecipeDetails.js (Add a Save/Unsave button)
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:4000/api/recipes/' + id)
       .then(res => setRecipe(res.data))
       .catch(err => console.log(err));
+
+    const storedUser = localStorage.getItem('user');
+    if(storedUser) {
+      const u = JSON.parse(storedUser);
+      setUser(u);
+      axios.get('http://localhost:4000/api/user', {
+        headers: { 'Authorization': 'Bearer ' + u.token }
+      })
+      .then(response => {
+        if(response.data.savedRecipes && response.data.savedRecipes.includes(id)) {
+          setIsSaved(true);
+        }
+      })
+      .catch(err => console.log(err));
+    }
   }, [id]);
 
   if(!recipe) return null;
 
+  const handleSaveToggle = () => {
+    if(!user) return;
+    axios.post(`http://localhost:4000/api/recipes/${id}/save`, {}, {
+      headers: { 'Authorization': 'Bearer ' + user.token }
+    })
+    .then(res => {
+      setIsSaved(res.data.savedRecipes.includes(id));
+    })
+    .catch(err => console.log(err));
+  }
+
   return (
     <div className="container mt-4">
+      <div className="mb-3 d-flex align-items-center">
+        <button className="btn btn-link px-0 me-3" onClick={() => navigate(-1)} style={{ fontSize: '1.2rem' }}>
+          ← Back
+        </button>
+        {user && (
+          <button 
+            className="btn btn-outline-secondary fw-bold"
+            onClick={handleSaveToggle}
+          >
+            {isSaved ? 'Unsave' : 'Save'}
+          </button>
+        )}
+      </div>
       <h3 className="text-center fw-bold mb-4" style={{ fontFamily: "'Caveat', cursive", fontSize: '2rem' }}>
         {recipe.name}
       </h3>
