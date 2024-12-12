@@ -36,3 +36,64 @@
     transform: rotate(360deg);
   }
 }
+
+
+.btn-primary {
+  background-color: #6c63ff;
+  border-color: #6c63ff;
+}
+
+.btn-primary:hover {
+  background-color: #5a52db;
+  border-color: #5a52db;
+}
+
+.btn-warning {
+  background-color: #f9a825;
+  border-color: #f9a825;
+}
+
+.btn-warning:hover {
+  background-color: #e68a00;
+  border-color: #e68a00;
+}
+
+.btn-danger {
+  background-color: #e53935;
+  border-color: #e53935;
+}
+
+.btn-danger:hover {
+  background-color: #d32f2f;
+  border-color: #d32f2f;
+}
+
+.btn-success {
+  background-color: #75d17a;
+  border-color: #75d17a;
+}
+
+.btn-success:hover {
+  background-color: #8abc8c;
+  border-color: #8abc8c;
+}
+
+.btn-outline-primary {
+  border-color: #6c63ff;
+  color: #6c63ff;
+}
+
+.btn-outline-primary:hover {
+  background-color: #6c63ff;
+  color: #fff;
+}
+
+.btn-outline-secondary {
+  border-color: #757575;
+  color: #757575;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #757575;
+  color: #fff;
+}

@@ -1,4 +1,5 @@
-// RecipeDetails.js (Add a Save/Unsave button)
+// RecipeDetails.js
+// Improved back button styling. Using a Bootstrap button with a small icon or just styled text.
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -45,9 +46,13 @@ const RecipeDetails = () => {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ fontFamily: "'Nunito', sans-serif" }}>
       <div className="mb-3 d-flex align-items-center">
-        <button className="btn btn-link px-0 me-3" onClick={() => navigate(-1)} style={{ fontSize: '1.2rem' }}>
+        <button 
+          className="btn btn-outline-primary fw-bold me-3" 
+          onClick={() => navigate(-1)} 
+          style={{ fontSize: '1rem' }}
+        >
           ← Back
         </button>
         {user && (
@@ -59,7 +64,7 @@ const RecipeDetails = () => {
           </button>
         )}
       </div>
-      <h3 className="text-center fw-bold mb-4" style={{ fontFamily: "'Caveat', cursive", fontSize: '2rem' }}>
+      <h3 className="text-center fw-bold mb-4" style={{ fontSize: '2rem' }}>
         {recipe.name}
       </h3>
       <div className="border rounded p-4 shadow-sm bg-light">
@@ -67,7 +72,7 @@ const RecipeDetails = () => {
           <img 
             src={recipe.image} 
             alt={recipe.name} 
-            style={{ maxWidth: '300px', borderRadius: '8px' }} 
+            style={{ maxWidth: '300px', borderRadius: '8px', border: '2px solid #ccc', padding:'5px' }} 
           />
         </div>
         <p><span className="fw-semibold">Preparation Time:</span> {recipe.preparationTime} mins</p>
@@ -80,7 +85,7 @@ const RecipeDetails = () => {
             <p>{inst.stepText}</p>
             {inst.stepImage && (
               <div className="text-center">
-                <img src={inst.stepImage} alt={`Step ${index+1}`} style={{ maxWidth: '250px', borderRadius: '8px' }} />
+                <img src={inst.stepImage} alt={`Step ${index+1}`} style={{ maxWidth: '250px', borderRadius: '8px', border: '1px solid #ddd', padding: '3px' }} />
               </div>
             )}
           </div>

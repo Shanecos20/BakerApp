@@ -11,6 +11,9 @@ import Login from './components/Login';
 import Register from './components/Register';
 import RecipeDetails from './components/RecipeDetails';
 import MyRecipes from './components/MyRecipes';
+//import App.css from './App.css';
+import './App.css';
+
 
 function App() {
   return (
