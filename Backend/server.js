@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   email:String,
   password:String,
   icon:String,
-  savedRecipes: [String] // Add this line
+  savedRecipes: [String]
 
 });
 
