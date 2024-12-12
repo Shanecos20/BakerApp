@@ -1,13 +1,19 @@
-// Register.js
+// Register.js (Update the user icons to use the provided Imgur links)
 import { useState } from 'react';
 import axios from 'axios';
 
 const userIcons = [
-  'https://example.com/icon1.png',
-  'https://example.com/icon2.png',
-  'https://example.com/icon3.png',
-  'https://example.com/icon4.png'
+  'https://i.ibb.co/BG9HQDT/Muffin-Man.png',
+  'https://i.ibb.co/37mdS42/Mixer.png',
+  'https://i.ibb.co/6g3JZCW/Cupcake.png',
+  'https://i.ibb.co/RSMzPrh/Bread.png'
 ];
+
+
+{/* <a href="https://imgbb.com/"><img src="https://i.ibb.co/BG9HQDT/Muffin-Man.png" alt="Muffin-Man" border="0"></a>
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/37mdS42/Mixer.png" alt="Mixer" border="0"></a>
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/6g3JZCW/Cupcake.png" alt="Cupcake" border="0"></a>
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/RSMzPrh/Bread.png" alt="Bread" border="0"></a> */}
 
 const Register = () => {
   const [email,setEmail] = useState('');

@@ -9,6 +9,8 @@ import Create from './components/Create';
 import Edit from './components/Edit';
 import Login from './components/Login';
 import Register from './components/Register';
+import RecipeDetails from './components/RecipeDetails';
+
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
         <Route path='/edit/:id' element={<Edit />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
+        <Route path="/recipe/:id" element={<RecipeDetails />} /> {/* Add this route */}
+
 
       </Routes>
       <Footer />

@@ -6,11 +6,12 @@ import { Dropdown, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+
 const userIcons = [
-  'https://example.com/icon1.png',
-  'https://example.com/icon2.png',
-  'https://example.com/icon3.png',
-  'https://example.com/icon4.png'
+  'https://i.ibb.co/BG9HQDT/Muffin-Man.png',
+  'https://i.ibb.co/37mdS42/Mixer.png',
+  'https://i.ibb.co/6g3JZCW/Cupcake.png',
+  'https://i.ibb.co/RSMzPrh/Bread.png'
 ];
 
 const NavigationBar = () => {

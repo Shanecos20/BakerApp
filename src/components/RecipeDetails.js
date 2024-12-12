@@ -1,6 +1,7 @@
-// RecipeDetails.js
+// RecipeDetails.js (Display all instructions)
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 import axios from 'axios';
 
 const RecipeDetails = () => {
@@ -31,8 +32,18 @@ const RecipeDetails = () => {
         <p><span className="fw-semibold">Preparation Time:</span> {recipe.preparationTime} mins</p>
         <p><span className="fw-semibold">Category:</span> {recipe.category}</p>
         <p><span className="fw-semibold">Ingredients:</span> {recipe.ingredients}</p>
-        <p><span className="fw-semibold">Instructions:</span></p>
-        <p>{recipe.instructions}</p>
+        <h5 className="fw-bold mt-4 mb-3">Instructions:</h5>
+        {recipe.instructions && recipe.instructions.map((inst, index) => (
+          <div key={index} className="mb-4">
+            <p className="fw-semibold mb-1">Step {index+1}:</p>
+            <p>{inst.stepText}</p>
+            {inst.stepImage && (
+              <div className="text-center">
+                <img src={inst.stepImage} alt={`Step ${index+1}`} style={{ maxWidth: '250px', borderRadius: '8px' }} />
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-// server.js
+// server.js (Update rating logic to allow updates and compute averages properly)
+// Using ratedBy array as [{userId:String, rating:Number}]
 const express = require('express');
 const app = express();
 const port = 4000;
@@ -32,12 +33,11 @@ const recipeSchema = new mongoose.Schema({
   name: String,
   preparationTime: Number,
   image: String,
-  instructions: String,
+  instructions: [{ stepText: String, stepImage: String }],
   ingredients: String,
   category: String,
   owner: String,
-  rating: { type: Number, default: 0 },
-  ratedBy: [{ userId: String }] 
+  ratedBy: [{ userId: String, rating: Number }]
 });
 
 const userModel = mongoose.model('usersCollection', userSchema);
@@ -129,23 +129,28 @@ app.delete('/api/recipes/:id', authMiddleware, async (req,res)=>{
   }
 });
 
+// Update rating logic
 app.post('/api/recipes/:id/rate', authMiddleware, async (req,res)=>{
   try {
     const recipe = await recipeModel.findById(req.params.id);
     if(!recipe) return res.status(404).json({message:'Recipe not found'});
     if(recipe.owner === req.user._id) return res.status(403).json({message:'Cannot rate own recipe'});
     const { rating } = req.body;
-    if(!recipe.ratedBy.find(r=>r.userId===req.user._id)) {
-      recipe.ratedBy.push({userId:req.user._id});
-      const totalRatings = recipe.ratedBy.length;
-      const currentRating = recipe.rating * (totalRatings-1);
-      const newRating = (currentRating + rating) / totalRatings;
-      recipe.rating = newRating;
+    if(rating < 1 || rating > 5) return res.status(400).json({message:'Invalid rating'});
+
+    // Check if user already rated
+    const existingRating = recipe.ratedBy.find(r=>r.userId===req.user._id);
+    if(existingRating) {
+      // Update existing rating
+      existingRating.rating = rating;
     } else {
-      // Already rated - simple approach: no re-rate
+      // Add new rating
+      recipe.ratedBy.push({userId:req.user._id, rating});
     }
+
     await recipe.save();
-    res.json({message:'Rated', rating:recipe.rating});
+
+    res.json({message:'Rated', updatedRecipe: recipe});
   } catch(error) {
     res.status(500).json({message:'Error rating'});
   }

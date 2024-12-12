@@ -1,7 +1,8 @@
-// Edit.js
+// Edit.js (Update to handle instructions as array)
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Button } from 'react-bootstrap';
 
 const Edit = () => {
     const { id } = useParams();
@@ -12,7 +13,7 @@ const Edit = () => {
     const [name, setName] = useState('');
     const [preparationTime, setPreparationTime] = useState('');
     const [image, setImage] = useState('');
-    const [instructions, setInstructions] = useState('');
+    const [instructions, setInstructions] = useState([{ stepText: '', stepImage: '' }]);
     const [ingredients, setIngredients] = useState('');
     const [category, setCategory] = useState('Cakes');
     const [owner, setOwner] = useState(null);
@@ -33,7 +34,7 @@ const Edit = () => {
             setName(res.data.name);
             setPreparationTime(res.data.preparationTime);
             setImage(res.data.image);
-            setInstructions(res.data.instructions);
+            setInstructions(res.data.instructions || [{ stepText: '', stepImage: '' }]);
             setIngredients(res.data.ingredients);
             setCategory(res.data.category);
             setOwner(res.data.owner);
@@ -43,6 +44,16 @@ const Edit = () => {
         })
         .catch((err) => {console.log(err)});
     }, [id, user, navigate]);
+
+    const handleInstructionChange = (index, field, value) => {
+      const updated = [...instructions];
+      updated[index][field] = value;
+      setInstructions(updated);
+    };
+
+    const handleAddInstruction = () => {
+      setInstructions([...instructions, { stepText: '', stepImage: '' }]);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -104,16 +115,6 @@ const Edit = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label fw-semibold">Instructions:</label>
-                    <textarea 
-                        className="form-control"
-                        rows="4"
-                        value={instructions}
-                        onChange={(e) => { setInstructions(e.target.value) }}
-                        placeholder="Enter step-by-step instructions"
-                    ></textarea>
-                </div>
-                <div className="mb-3">
                     <label className="form-label fw-semibold">Ingredients (comma separated):</label>
                     <input 
                         type="text"
@@ -134,6 +135,31 @@ const Edit = () => {
                       <option value="Pastries">Pastries</option>
                       <option value="Bread">Bread</option>
                     </select>
+                </div>
+                <hr />
+                <h5 className="fw-bold mb-3">Instructions</h5>
+                {instructions.map((inst, index) => (
+                  <div key={index} className="mb-3">
+                    <label className="form-label fw-semibold">Step {index+1} Text:</label>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={inst.stepText}
+                      onChange={(e) => handleInstructionChange(index, 'stepText', e.target.value)}
+                      placeholder="Enter instruction text"
+                    />
+                    <label className="form-label fw-semibold">Step {index+1} Image URL (optional):</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={inst.stepImage}
+                      onChange={(e) => handleInstructionChange(index, 'stepImage', e.target.value)}
+                      placeholder="Enter instruction image URL"
+                    />
+                  </div>
+                ))}
+                <div className="text-end mb-4">
+                  <Button variant="secondary" onClick={handleAddInstruction}>+ Add Another Instruction</Button>
                 </div>
                 <div className="text-center">
                     <button type="submit" className="btn btn-primary fw-bold px-4 py-2">
