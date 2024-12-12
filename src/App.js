@@ -11,8 +11,6 @@ import Login from './components/Login';
 import Register from './components/Register';
 import RecipeDetails from './components/RecipeDetails';
 
-
-
 function App() {
   return (
     <Router>
