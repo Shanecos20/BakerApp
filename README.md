@@ -18,7 +18,7 @@ git clone https://github.com/Shanecos20/BakerApp.git
 
 ### Navigate to the project directory
 ```
-cd bakery-app
+cd BakerApp
 ```
 
 ### Install dependencies
@@ -90,11 +90,21 @@ Upon successful registration, you'll be logged in automatically.
 
 ## Technology Stack
 
-### Libraries  
-- Cors
-- Mongoose
-- jsonwebtoken
-- axios
-- Bootstrap
+### Frontend
+- React: JavaScript library for building user interfaces.
+- React Router: For client-side routing and navigation.
+- React-Bootstrap: Bootstrap components rebuilt for React for responsive design.
+- Axios: Promise-based HTTP client for making API requests.
+- LocalStorage: For storing user authentication tokens and session management.
+
+### Backend  
+- Node.js: JavaScript runtime for building the server.
+- Express.js: Web framework for handling routes and middleware.
+- MongoDB: NoSQL database for storing user and recipe data.
+- Mongoose: ODM (Object Data Modeling) library for MongoDB and Node.js.
+- JWT (JSON Web Tokens): For user authentication and authorization.
+- Cors: Middleware for enabling CORS (Cross-Origin Resource Sharing).
+- Body-Parser: Middleware for parsing incoming request bodies.
+
 
 ###
